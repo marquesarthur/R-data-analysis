@@ -1,35 +1,21 @@
 ---
-title: "GAA - Arthur Marques"
-author: "Why RStudio is Awesome"
-date: '2019-05-31'
+title: "R Notebook"
 output:
-  ioslides_presentation:
-    smaller: yes
-    widescreen: yes
+  html_notebook: default
 ---
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(comment = NA)
-knitr::opts_chunk$set(tidy = TRUE)
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
 ```
 
 ```{r, echo = FALSE}
-if (!require("ggplot2")) install.packages("ggplot2")
-library("ggplot2")
-if (!require("ggpubr")) install.packages("ggpubr")
-library("ggpubr")
-if (!require("dplyr")) install.packages("dplyr")
-library("dplyr")
-if (!require("janitor")) install.packages("janitor")
-library("janitor")
-if (!require("stringr")) install.packages("stringr")
-library("stringr")
-if (!require("tidyverse")) install.packages("tidyverse")
-library("tidyverse")
+require("ggplot2")
+require("ggpubr")
+require("dplyr")
+require("janitor")
+require("stringr")
+require("tidyverse")
 
 scale2Decimals <- function(x) sprintf("%.2f", x)
 ```
@@ -46,7 +32,7 @@ Many libraries offer ease abstractions to analyze and plot data
 
 R allows you to load data in many formats (e.g. csv files)
 
-```{r echo = TRUE}
+```{r cars, echo = TRUE}
 globalTemperatures <- read_csv("GlobalTemperatures.csv")
 head(globalTemperatures, n=5)
 ```
@@ -58,38 +44,12 @@ head(globalTemperatures, n=5)
 You can select columns and filter data in an ease and readable syntax
 
 ```{r echo = TRUE}
-select(
-  filter(globalTemperatures, dt > as.Date("1800-01-01")), 
-  dt, LandAverageTemperature
-)
+select(filter(globalTemperatures, dt > as.Date("1800-01-01")), dt, LandAverageTemperature)
 ```
-
-## Data manipulation
-
-<center>
-
-![optional caption text](figures/variables.png)
-</center>
-
-
-## Data manipulation
-
-<center>
-
-![optional caption text](figures/dataframe.png)
-</center>
-
-
-## Data manipulation
-
-<center>
-
-![optional caption text](figures/filter.png)
-</center>
 
 ## Data transformation
 
-You can also transform your data applying **mutate** operators (e.g. converting a `date` field to a `numeric` year field) as you seem fit
+You can also transform your data applying operators (e.g. converting a `date` field to a `numeric` year field) as you seem fit
 
 ```{r echo = TRUE}
 dt_temperature <- globalTemperatures %>%
@@ -106,23 +66,19 @@ head(dt_temperature, n=5)
 avg_temp_by_year <- dt_temperature %>%
   group_by(year) %>%
   summarise(avg_temp = mean(LandAverageTemperature))
-```
 
-```{r echo = TRUE}
 p <- ggplot(data=avg_temp_by_year, aes(x=year, y=avg_temp)) +
-  geom_line()
-```
-
-```{r echo = FALSE}
-p <- p +
+  geom_line() +
   scale_x_continuous(breaks = seq(min(avg_temp_by_year %>% select(year)), max(avg_temp_by_year %>%select(year)), by = 25)) +
-  scale_y_continuous(labels=scale2Decimals, breaks = seq(min(avg_temp_by_year %>% select(avg_temp)), max(avg_temp_by_year %>%select(avg_temp)), by = .2)
+  scale_y_continuous(
+    labels=scale2Decimals,
+    breaks = seq(min(avg_temp_by_year %>% select(avg_temp)), max(avg_temp_by_year %>%select(avg_temp)), by = .2)
   ) +
   geom_hline(yintercept=9.0, linetype="dashed", color = "red")
 ```
 
 
-```{r fig.width=6, fig.height=4, out.extra='style="padding-left:160px; display: inline-block;"', echo=TRUE}
+```{r echo = TRUE}
 p
 ```
 
@@ -138,7 +94,7 @@ unique(globalTemperaturesByCountry %>% select(Country))
 
 ## Data transformation
 
-Libraries such as `dplyr` and `tidyverse` allow cleaning our data and removing non-valid entries (e.g. **na.omit()**)
+Libraries such as `dplyr` and `tidyverse` allow cleaning our data and removing non-valid entries
 
 ```{r echo = TRUE}
 dt_temperature <- globalTemperaturesByCountry %>%
@@ -147,32 +103,27 @@ dt_temperature <- globalTemperaturesByCountry %>%
   filter(Country == 'Canada' | Country == 'China' | Country == 'United States') %>%
   select(dt, AverageTemperature, Country) %>%
   mutate(year = as.numeric(format(dt, "%Y")))
-
-head(dt_temperature, n=5)
 ```
 
 ## Comparing data visually
 
-```{r echo = TRUE}
-p <- ggplot(data=dt_temperature, aes(x=Country, y=AverageTemperature, colour=Country)) +
-  geom_boxplot() 
-```
-
 ```{r echo = FALSE}
-p <- p +
+p <- ggplot(data=dt_temperature, aes(x=Country, y=AverageTemperature, colour=Country)) +
+  geom_boxplot() +
   scale_y_continuous(
     labels=scale2Decimals,
     breaks = seq(min(dt_temperature %>% select(AverageTemperature)), max(dt_temperature %>%select(AverageTemperature)), by = 5)
   )
 ```
 
-```{r out.extra='style="padding-left:160px; display: inline-block;"', echo = TRUE}
+```{r echo = TRUE}
 p
 ```
 
+
 ## Testing Normal Distribution
 
-```{r out.extra='style="padding-left:160px; display: inline-block;"', echo = TRUE}
+```{r echo = TRUE}
 ggdensity(dt_temperature$AverageTemperature, 
           main = "Density plot of Average Temperature",
           xlab = "Average Temperature")
@@ -208,17 +159,14 @@ cn_temp <- sample(cn_temp$AverageTemperature, random_samples)
 temperature <- c(temperature, cn_temp)
 country <- c(country, rep("China", random_samples))
 
-```
-
-
-```{r echo = TRUE}
 ca_temp <- sample(ca_temp$AverageTemperature, random_samples)
 temperature <- c(temperature, ca_temp)
 country <- c(country, rep("Canada", random_samples))
+
+df <- data.frame(AverageTemperature=temperature, Country=country)
 ```
 
 ```{r echo = TRUE}
-df <- data.frame(AverageTemperature=temperature, Country=country)
 head(df, n=5)
 ```
 
@@ -232,11 +180,3 @@ kruskal.test(Country ~ AverageTemperature, data = df)
 ## RStudio is awesome!
 
 Did I mention that this notebook was created on RStudio?
-
-## RStudio is awesome!
-
-<center>
-
-![optional caption text](figures/preview.png)
-
-</center>
