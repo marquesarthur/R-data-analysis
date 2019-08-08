@@ -80,13 +80,6 @@ select(
 </center>
 
 
-## Data manipulation
-
-<center>
-
-![optional caption text](figures/filter.png)
-</center>
-
 ## Data transformation
 
 You can also transform your data applying **mutate** operators (e.g. converting a `date` field to a `numeric` year field) as you seem fit
@@ -232,6 +225,8 @@ kruskal.test(Country ~ AverageTemperature, data = df)
 ## RStudio is awesome!
 
 Did I mention that this notebook was created on RStudio?
+
+## Thanks
 
 ## RStudio is awesome!
 
